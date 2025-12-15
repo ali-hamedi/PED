@@ -1,0 +1,189 @@
+
+
+F : neural radiance field
+F   (x,y,z,θ,ϕ) → (R,G,B,σ)
+
+
+view-dependent RGB color
+
+
+
+density
+
+
+5 inputs (x, y, z, θ, ϕ)
+    
+    location AND viewing angle
+
+
+    (x, y, z )  3D coordinate in space {location}
+    ( θ, ϕ )    spherical coordinates   => direction the camera is looking
+    θ azimuthal angle | left or right /   horizontal  ; [0,360]
+    ϕ (Phi) polar angle  | up or down   / vertical ; [0,180]
+
+4 outputs (Color + Density)
+
+    Radiance (Color) 
+        3 values (RGB)
+    Density 
+        - Density only depends on location (x,y,z) 
+            --A rock is solid regardless of which angle you look at it from.
+
+
+---------------------------------------------------------------------
+
+
+
+
+in traditional computer vision, 3D data is discrete:
+Voxel grids  & Meshes
+
+    Mesh :  A surface made of connected triangles (polygons)
+    Voxel:  A 3D pixel (Volume Element). The scene is a cube divided into smaller cubes.
+
+NeRF proposes a Continuous representation = Neural Radiance Field 
+
+    The scene is not stored as data points. It is stored as the weights of a Multilayer Perceptron (MLP).
+
+    The Function: FΘ​:(x,d)→(c,σ)
+
+    Because the MLP is a continuous function
+    you can query it at any point coordinate (x=1.596) and get a valid output.
+    Infinite resolution is theoretically possible, limited only by the network's capacity (spectral bias).
+
+---------------------------------------------------------------------
+Ray:
+    r(t)=o+td    
+        We march from near (tn​) to far (tf​) in small steps(t)
+        At every step we calculate a 3D coordinate (x,y,z) to ask the Neural Network about it dencity σ and RGB color c
+    
+    d ===> direction. Cartesian unit vector
+        d=(dx​,dy​,dz​).
+        sqrt(dx^2​+dy^2​+dz^2​​=1)
+
+    θ,ϕ ==> θ azimuthal angle, ϕ (Phi) polar
+        dx​=sin(ϕ)cos(θ)
+        dy​=sin(ϕ)sin(θ)
+        dz​=cos(ϕ)
+
+    o => Ray Origin
+
+
+The expected color : 
+    C(r) = ∫ T(t) σ(r(t)) c(r(t), d) dt  [tn, tf]
+
+    Components:
+        dt  [tf, tn] ; integral over t steps from near(tn) to far (tf)
+        
+        c(r(t), d)  
+            color : based on location(ray = r(t)) and viewing direction d  (Neural Netowrk output)
+        σ(r(t)) 
+            density: only based on location(ray = r(t)) (Neural Netowrk output)
+        T(t) 
+
+            transmittance :  probability that the ray made it from the camera to point t without getting blocked
+            
+            A running calculation of all previous densities.
+            T(t)=exp( −∫​σ(r(s)) ds ) [from tn(near) to t(current)]
+
+
+            T is the mechanism that converts density into visibility using the {Beer-Lambert law}
+            We convert it to Alpha (α) (Opacity) 
+            α ​= 1−exp(−σ⋅δ​)
+            δ : step in the for loop (integral)
+            goal : turn density σ (from 0 to inf) to  opacity α (0 to 1)
+            The visibility at step i is equal to (1 - Opacity of Step 1) × (1 - Opacity of Step 2) × ...
+
+            The Neural Network knows the absolute truth about the scene, but the Integral decides what you are allowed to see
+            Blue Ball Behind a Brick Wal
+
+    Discrete version:
+    C(r) =∑ Ti  (1 − exp(−σiδi))  ci
+        ci color
+        
+        Ti color : transmittance
+            = exp( −∑ σj δj)
+
+        density turned to opacity : (1 − exp(−σiδi))  
+
+-----------------------------------------------
+Sampling: 
+    100
+    tn=0
+    tfar=10
+
+    t=1.0,2.0,3.0,…
+    
+        X t=2.5
+        Aliasing
+
+Stratified Sampling:
+    N buckets (bins)
+    0th bucket : 0-1
+    1th bucket : 1-2
+    2th bucket : 2-3
+        sample(uniformly) from the 2th bucket:
+            1st try: 2.1 
+            2nd try: 2.9
+            3rd try: 2.5
+            .....
+
+
+
+-----------------------------------------------
+Positional encoding;
+    FΘ​=FΘ′​∘γ:
+
+
+    In math, the circle ∘ means Composition.
+        f(g(x))
+        final_output = Network(PositionalEncoder(input))
+
+    γ(p)=[sin(20πp),cos(20πp),…,sin(2L−1πp),cos(2L−1πp)]
+
+        p: The input number (normalized between -1 and 1).
+        L: The number of frequency bands (Levels of detail).
+        Output Size: The output vector has a length of 2L.
+
+----------------------------
+Hierarchical volume sampling
+
+    Coarse:
+        e.g 64 points;
+        C(r) = ∑ wi ci ,          wi = Ti(1 − exp(−σiδi)) 
+        weighted sum of colors; weights are = transmittance x opacity
+
+
+    We normalize these weights to turn them into a Probability Density Function (PDF)
+    You generate e.g 128 new points based on the PDF.
+    
+    Weights --> PDF ---> CDF --> Inverse Transform Sampling
+        CDF : [0.1, 0.3, 0.9, 1.0] 
+        1st rand num ==> 0.69 , second bin [0.3,0.9]  
+        2nd rand num ==> 0.19 , first bin [0.1,0.3] 
+        ...... 
+        128th rand num ==> 0.39 , second bin [0.3,0.9]
+
+    Fine:
+        64+128 = 192 points
+        C(r) =∑ Ti  (1 − exp(−σiδi))  ci
+----------------------------
+PSNR ↑ (Peak Signal-to-Noise Ratio):
+
+    What it measures: Raw pixel accuracy.
+
+    Scale: Logarithmic (dB). A jump from 30 to 40 is massive. 40+ is considered indistinguishable from the original by the human eye.
+
+SSIM ↑ (Structural Similarity Index):
+
+    What it measures: Perceived structural quality (edges, textures). Does it look like the same object
+
+
+LPIPS ↓ (Learned Perceptual Image Patch Similarity):
+
+    What it measures: "Does this look weird to a human?" It uses a neural network (VGG) to check for blurriness or artifacts that PSNR might miss.
+
+
+
+
+

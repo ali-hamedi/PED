@@ -1,0 +1,158 @@
+
+ILSVRC = ImageNet Large Scale Visual Recognition Challenge**
+
+14M labeled images
+21,841 total categories
+Standard subset: ImageNet-1K
+  1.28M training images
+  50,000 validation images
+  1,000 classes
+224 × 224
+--------------------------------
+
+VOC = PASCAL Visual Object Classes
+
+~11,000 images (VOC 2007)
+20 object classes
+Tasks: detection, segmentation, classification
+Standard splits:
+  VOC 2007: train/val/test
+  VOC 2012: train/val/test
+500 × 375 on average
+--------------------------------
+
+COCO = Common Objects in Context**
+
+330,000 images total
+200,000 labeled images
+80 detection categories
+640 × 480 on average
+
+--------------------------------
+2007 Evaluation ===> 07+12 : 2007 trainval + 2012 trainval
+2012 Evaluation ===> 07++12 : 2007 trainvaltest + 2012 trainval
+
+VOC 2007:
+    train: ~2.5k
+    val: ~2.5k
+    trainval: ~5k
+
+    test: ~5k
+
+VOC 2012:
+    train: ~5.7k
+    val: ~5.8k
+    trainval: ~11.5k 
+
+    test: ≈ 11k
+
+
+
+
+CIFAR10
+60k image
+10 category labeled
+50k train (45k trian, 5k val)
+10k test
+32x32
+
+
+#################################################################
+####     Classification + Localization = Detection      #########
+#################################################################
+
+Task	                # of boxes	        Purpose
+ImageNet Localization	1 box	            Localize the main labeled object
+Object Detection	    multiple boxes	    Detect and classify all objects
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Degradation : Network X ==> acc'
+Network X + 20layers(identitiy) ==> acc''
+
+
+input->layer-->output=input
+Imperical acc''<acc' 
+
+
+Theortical
+( 
+  ** THERE MUST BE A SOLUTION WHERE acc'' >= acc' ; the case that all 20layers are identitiy
+)
+
+
+H(x)  = identitiy
+
+layer = F(x) ==> H(x) HARDER ||||||| layer = identitiy (output = input)
+
+layer = F(x) ==> H(x)−x  EASIER ||||| layer = zero mapping (output =0)
+
+???????
+
+
+We hypothesize that it is easier to optimize the residual mapping than to optimize
+the original, unreferenced mapping. To the extreme, if an
+identity mapping were optimal, it would be easier to push
+the residual to zero than to fit an identity mapping by a stack
+of nonlinear layers
+
+?????
+
+cat dog horse
+top-x error; model==> prediction : [0.9 0.05 0.05 ] ==> top x confident prediction ==> error
+
+
+top-1-error
+top-5-error
+
+
+
+residual connection 
+
+shortcut connection
+
+
+
+
+
+#######################################################
+#######  CN --> BN ---> nonlinearity (ReLU)    #####
+#######################################################
+
+
+
+
+
+
+
+
+4.2 . CIFAR-10 and Analysis
+
+32x32
+conv1 3x3
+
+6n layer
+
+
+3{32x32x16 , 16x16x32, 8x8x64 }  2n layer
+
+3 x 2n layer ==> 2n/2 ==> n
+3n
+
+
+
+
+BN;    output of layer ==> mean=0; std  ===> 0 ==> all weights ====> 0 (residual ===> networkx = 20 layer ; acc)

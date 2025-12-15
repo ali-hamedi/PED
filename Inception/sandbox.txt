@@ -1,0 +1,738 @@
+
+VGG 16 ; baseline / old / oldschool (2014 2th sep)
+
+inception : baseline + ye chizi (2014 17th sep)
+resnet  : baseline + ye chizi
+
+
+
+knowldege / flop| num of params
+
+
+
+
+
+ML : 
+    Linear regression ; Logistic regression
+
+input --> pipeline --> output 
+
+
+DL : linear unit / neuron 
+
+input --> pipeline --> pipeline' --> pipeline'' --> output 
+
+
+4->16->32->1 (cancer yes/ no)
+
+input 4 ; 16(each one a function of the input); 32 (each one a function of the last 16)
+
+1 semntaic  (high level feature) e.g input : blood sugre layer-> diabet yes/no ->output: cancer
+2 math : better function representation; (a linear combination of a linear combination)  
+
+
+
+
+channel
+
+
+H,W,C
+100,100,3(rgb) == > 100,100,64
+
+64 -->128
+64 -->32
+
+conv 1x1 (16,64,1,1) ==> num params , num of flops 1/9 ; 11%
+conv 3,3 (128,64,3,3)
+
+
+
+even low dimensional "embeddings" might contain a lot of information about 
+NLP ; word2vec : word ==> vec
+dictionary 50,000 => vector (300,1)
+
+
+
+
+
+nxn --> mxm 
+flops/paramter (m/n)^2
+1x1 -->3x3= 9x times
+
+3x3-->7x7 
+(7/3)^2 ~= 5x time
+
+
+
+RCNN ; 
+
+Reigonal Convolutional NN; 
+
+naive : 100x100 ; 100 tile 10x10, tile ==> model ==> output (localization; cat is in the 5 tile)
+
+x [50,60]
+y[0,10]
+1 2 3 4 5 6 7 8 9 10
+
+
+
+
+91 92 93 94 95 96 97 98 99 100     
+
+Fast RCNN
+
+Faster RCNN
+
+
+
+------------------
+Dense:
+
+
+    We want to compute y=Ax.
+    A : N×N matrix , x : N×1 
+
+    y : Nx1
+    yi ​= ∑ ​Aij​⋅xj​ ;;; ∑(for J)
+
+        SIMD ; single instruction multiple data
+
+        Memory : contiguous block of N2 floating point numbers 
+        Computational Complexity: O(N2) operations.
+        Arithmetic Intensity: C=AB we perform O(N3) ops on O(N2) data
+
+
+Sparse:
+    A has only NNZ (Number of Non-Zeros) elements ; where NNZ≪N2
+
+    1 0 0 0 0 0 4
+    0 0 0 0 0 0 0
+    0 0 0 0 0 0 0
+    0 0 0 0 0 0 0
+    0 0 0 0 0 2 0
+    5 0 0 0 0 0 0
+    0 0 0 0 0 0 3
+
+
+
+    Values (V): The non-zero values (size NNZ) 
+    Column Indices (C): The column index for each value (size NNZ) 
+    Row Pointers (R): Where each row starts in V (size N+1).
+
+    yi​ = ∑ V[k]⋅xC[k]​
+
+
+    ‌‌B: 7x7 ; a11,a56,a77,a17,a61 = [1,2,3,4,5] and the rest of zero
+
+    V = [1,4,2,5,3] 
+    C = [1,7,6,1,7] 
+    R=[0,2,2,2,2,3,4,5]
+
+    Computational Complexity: O(NNZ) operations; if NNZ = N ===> O(N)
+
+    The index C[k] is data-dependent. aka : SIMD; Parallel
+    1 query C[k] 2 lookups
+    2 cache misses ; C[k] ; 0x543FA 0x543FB(sparse ; next element totally another place) 
+    3 C[k+1] ; cache miss + lookup
+
+    *** We cannot know which address of x to read until we fetch C[k]
+
+
+Dense >>>> Sparse 
+
+how we store them
+
+hardware 
+
+
+
+-------------------------------------------------------------
+
+Complexity ∝ (Kernel Size)2×(Feature Map Size)×Cin​×Cout​
+
+
+k2 = n * k1
+complexity2 = n^2 * complexity1 
+
+-------------------------------------------------------------
+
+
+Hebbian principle
+
+
+"Neurons that fire together ; work together"
+
+
+input(4)-->16-->32 * --->64
+
+1st neuron 
+10th neuron
+30th neuron
+31th neuron
+
+representing the same thing 
+1 early layers ==> reigonal (dog's ear) # 1x1,3x3
+
+1x1 3x3 5x5 ( no 7x7)
+
+
+
+features of higher abstraction are captured by higher layers, their spatial
+concentration is expected to decrease 
+
+representing the same thing 
+1 early layers ==> reigonal 
+
+2 later layer ==> abstraction (the dog in the desert) # 5x5
+
+
+X no 5x5 (1 expensive , 2 coarse)
+X  no 3,3 (1 fine)
+------------------------------------------
+
+1 Sparisty in spatial domain
+
+    Most current vision oriented machine learning systems utilize sparsity in the spatial domain just by the virtue of employing convolutions
+
+
+    sparisty; in the spatial domain ; by the virtue of employing convolutions ;
+
+    100x100; 10,000 pixel (3x3)
+
+    input --> 128 ; (128,3,3,3)
+    (output_channels,input_channels,filter_size,filter_size)
+
+
+
+2 Sparisty in depth (do filters on seprate channels and connect)
+
+
+    filter 77th; layer 1,2,3
+    filter 82th :  layer 1,2,3
+    filter 89th :  layer 1,2,3
+    filter 5th :  layer 1,2,
+
+    128,3
+
+
+2.99:
+
+    Ground TRUTH ****
+    SPARSE NETWORK
+    [A 0 0 C]
+    [0 0 B 0]
+    [D 0 0 E]
+    [F G 0 H]
+
+
+    Approximation with dense submatrices
+    [A B 0 0]
+    [C D 0 0]
+    [0 0 E F]
+    [0 0 G H]
+
+
+
+    sub matrix 1 (DENSE) : [A B]
+                        [C D]
+
+    sub matrix 2 (DENSE) : [E F]
+                            [G H]
+
+    cluster 1&2 -===> sparse matrix
+
+
+
+
+    The most convincing proof would be if an automated
+    system would create network topologies resulting in similar gains in other domains using the same
+    algorithm but with very differently looking global architecture 
+
+3:
+
+3.1 
+    "we need to go deeper", 
+    "The most straightforward way of improving the performance of deep neural networks is by increasing their size :
+        depth – the number of levels 
+        width: the number of units at each level
+    " ==> larger number of parameters, more Computational
+
+    The fundamental way of solving both issues : moving from fully connected to sparsely connected architecture
+
+3.2 :
+    sparisity in spatial ==> convolutions
+    sparisity in depth ==> X
+    sparisity in filter level **** $
+
+3.3
+    A sparse Network/matrix ; Approximate by dense submatrices
+
+
+     ---> conv(1x1) subMatrix dense #1
+input---> conv(3x3) subMatrix dense #2 concat => sparse matrix ==>
+     ---> conv(5x5) subMatrix dense #3
+
+
+------------------------------------
+# Linear (7×7×1024 ,1024)
+avg pool (1024)
+
+dropout 
+linear (1024,1000)
+softmax (1000,output)
+
+
+# RANDOM #
+aspect ratio; 3/4 , 4/3
+size ; 100%=224 ; random 8% - 100%
+ 
+----------------------------------------------
+1 implement the model ourselvs
+2 load trained weights ( good / bad implementation)
+3 pretrained network (validation set imagenet ; benchmark) 
+
+
+
+
+
+-----------------------------
+GoogLeNet(
+                      (conv1): BasicConv2d(
+                        (conv): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+                        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+                      )
+                        (maxpool1): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (conv2): BasicConv2d(
+    (conv): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (conv3): BasicConv2d(
+    (conv): Conv2d(64, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (maxpool2): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (inception3a): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(192, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(192, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(96, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(192, 16, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(16, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(16, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(192, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (inception3b): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(128, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(32, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (maxpool3): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (inception4a): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(480, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(480, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(96, 208, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(208, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(480, 16, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(16, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(16, 48, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(48, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(480, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (inception4b): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(512, 160, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(512, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(112, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(112, 224, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(224, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(512, 24, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(24, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(24, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(512, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (inception4c): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(256, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(512, 24, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(24, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(24, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(512, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (inception4d): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(512, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(112, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(512, 144, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(144, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(144, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(288, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(512, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(512, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (inception4e): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(528, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(256, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(528, 160, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(160, 320, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(320, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(528, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(32, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(528, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (maxpool4): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (inception5a): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(832, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(256, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(832, 160, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(160, 320, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(320, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(832, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(32, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(832, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (inception5b): Inception(
+    (branch1): BasicConv2d(
+      (conv): Conv2d(832, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch2): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(832, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(192, 384, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch3): Sequential(
+      (0): BasicConv2d(
+        (conv): Conv2d(832, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(48, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (1): BasicConv2d(
+        (conv): Conv2d(48, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (branch4): Sequential(
+      (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=True)
+      (1): BasicConv2d(
+        (conv): Conv2d(832, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+  )
+  (aux1): InceptionAux(
+    (conv): BasicConv2d(
+      (conv): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (fc1): Linear(in_features=2048, out_features=1024, bias=True)
+    (fc2): Linear(in_features=1024, out_features=1000, bias=True)
+    (dropout): Dropout(p=0.7, inplace=False)
+  )
+  (aux2): InceptionAux(
+    (conv): BasicConv2d(
+      (conv): Conv2d(528, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (fc1): Linear(in_features=2048, out_features=1024, bias=True)
+    (fc2): Linear(in_features=1024, out_features=1000, bias=True)
+    (dropout): Dropout(p=0.7, inplace=False)
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (dropout): Dropout(p=0.2, inplace=False)
+  (fc): Linear(in_features=1024, out_features=1000, bias=True)
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import torch
+from torchvision.models import googlenet, GoogLeNet_Weights
+
+
+
+weights = GoogLeNet_Weights.IMAGENET1K_V1
+tv_model = googlenet(weights=weights, aux_logits=True).to(device).eval()
+state = tv_model.state_dict()
+
+missing, unexpected = model.load_state_dict(state, strict=True)
+print("missing:", missing)
+print("unexpected:", unexpected)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def evaluate:
+
+    weights = GoogLeNet_Weights.IMAGENET1K_V1
+    model = googlenet(weights=weights, aux_logits=False).to(device).eval()
+
+    val_tfms = weights.transforms()
+    val_dir = f"{imagenet_root}/val"
+    val_ds = datasets.ImageFolder(val_dir, transform=val_tfms)
+
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True,
+        persistent_workers=(num_workers > 0),
+    )
+
+    top1_correct = 0.0
+    top5_correct = 0.0
+    total = 0
+
+    for images, targets in val_loader:
+        images = images.to(device, non_blocking=True)
+        targets = targets.to(device, non_blocking=True)
+
+        logits = model(images)
+        c1, c5 = accuracy_topk(logits, targets, topk=(1, 5))
+
+        top1_correct += c1.item()
+        top5_correct += c5.item()
+        total += targets.size(0)
+
+    top1 = 100.0 * top1_correct / total
+    top5 = 100.0 * top5_correct / total
+    return top1, top5
+
+top1, top5 = evaluate_imagenet_val("/data/imagenet", batch_size=256, num_workers=8)
+print(f"Top-1: {top1:.3f}% | Top-5: {top5:.3f}%")
+
+

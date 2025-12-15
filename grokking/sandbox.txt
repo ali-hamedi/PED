@@ -1,0 +1,53 @@
+
+A binary operation is just a rule that takes two inputs and produces one output:
+
+    a∘b=c
+
+
+Addition
+    symbols = {0, 1, 2, 3, 4}
+
+        a∘b = (a+b)mod5
+
+        2 ◦ 3 = 0
+        4 ◦ 4 = 3
+        1 ◦ 0 = 1
+
+Composition of permutations
+
+    symbols =  {1,2,3}
+
+        a = (1→2, 2→3, 3→1)
+        b = (1→1, 2→3, 3→2)
+        c = (1→3, 2→1, 3→2)
+
+
+    a∘b=apply b first, then a
+
+        a ◦ b = c
+        b ◦ a = d 
+
+----------------------------------------------------------------------------------
+
+
+
+S5 is the symmetric group on 5 elements
+    {1,2,3,4,5}
+
+closed binary operation; mod something (for a prime number p = 97)
+
+x ◦ y = x + y (mod p) for 0 ≤ x, y < p
+x ◦ y = x − y (mod p) for 0 ≤ x, y < p
+x ◦ y = x/y (mod p) for 0 ≤ x < p, 0 < y < p
+x ◦ y = [x/y (mod p) if y is odd, otherwise x − y (mod p)] for 0 ≤ x, y < p
+x ◦ y = x2 + y2 (mod p) for 0 ≤ x, y < p
+x ◦ y = x2 + xy + y2 (mod p) for 0 ≤ x, y < p
+x ◦ y = x2 + xy + y2 + x (mod p) for 0 ≤ x, y < p
+x ◦ y = x3 + xy (mod p) for 0 ≤ x, y < p
+x ◦ y = x3 + xy2 + y (mod p) for 0 ≤ x, y < p
+x ◦ y = x · y for x, y ∈ S5
+x ◦ y = x · y · x−1 for x, y ∈ S5
+x ◦ y = x · y · x for x, y ∈ S5
+
+
+----------------------------------------------------------------------------------

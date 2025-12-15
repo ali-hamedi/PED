@@ -1,0 +1,72 @@
+# -----------------------
+# OS / editor
+# -----------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# -----------------------
+# Python
+# -----------------------
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# virtualenvs
+.venv/
+venv/
+env/
+py313/
+
+# -----------------------
+# Jupyter
+# -----------------------
+.ipynb_checkpoints/
+
+# -----------------------
+# Logs / temp
+# -----------------------
+*.log
+*.tmp
+
+# -----------------------
+# Data / artifacts (ML)
+# -----------------------
+# checkpoints / weights
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.safetensors
+
+# datasets / large generated folders (keep code, ignore data dumps)
+**/dataset/
+**/data/
+**/*_data/
+**/nerf_llff_data/
+**/nerf_synthetic/
+
+# zips and large archives (you have 360_v2.zip)
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+# -----------------------
+# Keep these tracked (explicit allow)
+# -----------------------
+# If you WANT to keep some weights or zips, remove the ignore above
+# or add an exception like:
+# !NeRF/nerf_checkpoint.pth
+# !3DGS/360_v2.zip
