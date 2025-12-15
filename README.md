@@ -1,57 +1,78 @@
-# PED: Paper Explain With Documentation
+# PED — Paper Explain with Documentation
 
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=PyTorch&logoColor=white)
-![Jupyter](https://img.shields.io/badge/Made%20with-Jupyter-orange?style=flat&logo=Jupyter)
-![License](https://img.shields.io/badge/license-MIT-green)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch" />
+  <img src="https://img.shields.io/badge/Jupyter-orange?logo=jupyter&logoColor=white" alt="Jupyter" />
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License" />
+</p>
 
-Welcome to the official repository for **Paper Explain With Documentation (PED)**. This project hosts clean, educational implementations of cutting-edge AI papers, accompanied by deep-dive explanations on my Telegram channel.
-
-📢 **Telegram Channel:** [Paper Explain With Documentation](https://t.me/paperExplainWithDocumentation)
-
-> **Note:** Comprehensive video walkthroughs are primarily in **Farsi (Persian)**.
+<p align="center">
+  <b>Clean, educational implementations of influential AI papers</b><br/>
+  with structured explanations and experiments
+</p>
 
 ---
 
-## 📚 Implemented Papers & Visuals
+Welcome to **PED (Paper Explain with Documentation)** — a curated collection of
+well-documented implementations of important Artificial Intelligence papers,
+built for **learning, experimentation, and clarity**.
 
-### 🧠 Reasoning
-#### [Hierarchical Reasoning Model (HRM)](./HRM)
-A novel architecture for complex reasoning and planning tasks, capable of solving Sudoku and ARC challenges.
+📢 <b>Telegram Channel:</b> https://t.me/paperExplainWithDocumentation
+
+> 🎥 <b>Note:</b> Most long-form explanations and videos are in <b>Farsi (Persian)</b>.
+
+---
+
+## 📚 Implemented Papers
+
+### 🧠 Reasoning & Generalization
+
+#### 🔹 [Hierarchical Reasoning Model (HRM)](./HRM)
+
+A hierarchical architecture for complex reasoning and planning tasks, capable of
+solving **Sudoku** and **ARC-style** problems.
+
 <p align="center">
-  <img src="./HRM/assets/hrm.png" width="800" alt="HRM Architecture">
+  <img src="./HRM/assets/hrm.png" width="800" alt="HRM Architecture" />
 </p>
 
-#### [Grokking](./grokking)
-Exploring generalization beyond overfitting on small algorithmic datasets.
+#### 🔹 [Grokking](./grokking)
+
+An exploration of **generalization beyond overfitting** on small algorithmic
+datasets.
+
+![Grokking Overview](./grokking/grokking-overview.png)
 
 ---
 
 ### 🌟 Computer Vision & Graphics
 
-#### [3D Gaussian Splatting (3DGS)](./3DGS)
-Real-time radiance field rendering of 3D scenes using 3D Gaussians.
-<p align="center">
-  <img src="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/teaser.jpg" width="800" alt="3DGS Teaser">
-</p>
+#### 🔹 [3D Gaussian Splatting (3DGS)](./3DGS)
 
-#### [Neural Radiance Fields (NeRF)](./NeRF)
-Representing scenes as neural radiance fields for novel view synthesis.
-<p align="center">
-  <img src="https://raw.githubusercontent.com/bmild/nerf/master/imgs/legogif.gif" width="600" alt="NeRF Lego GIF">
-</p>
+Real-time radiance field rendering using 3D Gaussian primitives.
 
-#### [ResNet (Residual Networks)](./ResNet)
-Deep Residual Learning for Image Recognition - solving the vanishing gradient problem with skip connections.
-<p align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/ResNet_Block.svg/640px-ResNet_Block.svg.png" width="400" alt="ResNet Block">
-</p>
+![3DGS Overview](./3DGS/3dgs-overviewa.png)
 
-#### [Inception (GoogLeNet)](./Inception)
-"Going Deeper with Convolutions" - efficient deep learning architectures.
-<p align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Inception_module_Inc-v1.png/640px-Inception_module_Inc-v1.png" width="500" alt="Inception Module">
-</p>
+#### 🔹 [Neural Radiance Fields (NeRF)](./NeRF)
+
+Representing scenes as continuous neural radiance fields for novel view synthesis.
+
+![NeRF Overview](./NeRF/nerf-overview.png)
+
+#### 🔹 [ResNet (Residual Networks)](./ResNet)
+
+Deep Residual Learning for Image Recognition — solving the vanishing gradient
+problem using skip connections.
+
+![ResNet Block](./ResNet/Residual-overview.png)
+
+#### 🔹 [Inception (GoogLeNet)](./Inception)
+
+“Going Deeper with Convolutions” — efficient deep CNN architectures via
+multi-scale feature extraction.
+
+![Inception v1 Architecture](./Inception/Inceptionv1_architecture.png)
 
 ---
 
@@ -61,13 +82,20 @@ Deep Residual Learning for Image Recognition - solving the vanishing gradient pr
 git clone https://github.com/ali-hamedi/PED.git
 cd PED
 pip install torch torchvision numpy matplotlib jupyter
-# For HRM specifics:
+```
+
+For **HRM**:
+
+```bash
 pip install -r HRM/requirements.txt
 ```
 
+---
+
 ## 🚀 Usage
 
-Navigate to any paper's directory and launch the Jupyter Notebook:
+Most implementations are provided as **Jupyter notebooks** for interactive
+experimentation.
 
 ```bash
 cd NeRF
@@ -76,6 +104,18 @@ jupyter lab nerf.ipynb
 
 ---
 
-<div align="center">
-  <sub>Created by Ali Hamedi</sub>
-</div>
+## 🤝 Contributing
+
+Contributions are welcome.
+
+- Open an **issue** if you find a bug, broken link, or want a paper implemented.
+- Feel free to submit a **pull request** with improvements (cleanup, speedups, docs, etc.).
+- Keep implementations **educational and readable** (clear variable names, comments, minimal “magic”).
+
+If your change adds new dependencies, please update the relevant \`requirements.txt\` (or document it in that folder’s README).
+
+---
+
+<p align="center">
+  <sub>Created with ❤️ by Ali Hamedi</sub>
+</p>
