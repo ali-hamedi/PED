@@ -1,0 +1,12 @@
+# Minimal runtime dependencies for 3dgs.py and 3dgs.ipynb.
+numpy
+torch
+imageio
+imageio-ffmpeg
+lpips
+pillow
+scikit-learn
+tqdm
+pytorch-msssim
+matplotlib
+git+https://github.com/graphdeco-inria/diff-gaussian-rasterization

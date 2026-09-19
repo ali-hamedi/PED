@@ -1,0 +1,6 @@
+scene,split,seed,iterations,object_psnr_db,object_ssim,object_lpips,gaussians,source
+toycar,test,42,30000,25.826,0.8697,0.1763,30201,thesis_chapter4_tab11
+toycar,test,123,30000,25.882,0.8712,0.1757,30258,thesis_chapter4_tab11
+toycar,test,2026,30000,25.781,0.8693,0.1769,31453,thesis_chapter4_tab11
+bonsai,test,,30000,32.18,,,,thesis_chapter4_tab6
+counter,test,,30000,29.06,,,,thesis_chapter4_tab6
